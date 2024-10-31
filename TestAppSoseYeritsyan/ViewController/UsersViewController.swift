@@ -23,15 +23,15 @@ class UsersViewController: CustomViewController {
         tableView.register(UINib(nibName: "UserTableViewCell", bundle: nil), forCellReuseIdentifier: UserTableViewCell.identifier)
         
         setupInterface()
-        
-        // Fetch users list
-        fetchUsers()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         // Show Tabbar
         tabBarController?.tabBar.isHidden = false
+        
+        // Fetch users list
+        fetchUsers()
     }
     
     func setupInterface() {
@@ -48,8 +48,13 @@ class UsersViewController: CustomViewController {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let usersResponse):
-                    // Append new users or set to new data if reloading
-                    self.usersArray.append(contentsOf: usersResponse.users)
+                    // Check If its first page
+                    if usersResponse.links.prevUrl == nil {
+                        self.usersArray = usersResponse.users
+                    } else {
+                        // Append new users or set to new data if reloading
+                        self.usersArray.append(contentsOf: usersResponse.users)
+                    }
                     
                     // Update links for navigation
                     self.nextURL = usersResponse.links.nextUrl
